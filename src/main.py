@@ -12,11 +12,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 nb_agent = 200
-nb_it =  500
+nb_it = 1000
 class Env():
     def __init__(self):
-        self.R1 = 200000
-        self.R2 = 200000
+        self.R1 = 0
+        self.R2 = 0
         
 
 def gen_from_density(n,d): 
@@ -76,31 +76,27 @@ def gen_chaine(n):
     return g
         
 if __name__ == '__main__':
- 
-    print("~~~~~~~~random~~~~~~~~")
-    sp = 2*[0]
     for j in range(10):
         c = Counter()
         env = Env()
-        graph = gen_from_density(nb_agent,  10/nb_agent)
+        graph = gen_from_density(nb_agent, 0.01)
         i = 0
-        boole = False
         for i in range(nb_it):
+            env.R1 = nb_agent/2
+            env.R2 = nb_agent/2
             i += 1
+            #print('##############')
+            k = 0
             for a in graph:
                 a.move()
                 a.compute_fitness(env, i)
                 a.broadcast()
+                #print(k , a.is_stopped(),a.g_skill, a.energy, a.fitness)
+                k += 1
             for a in graph:
                 a.apply_variation_fitness_prop()
-        h = 3*[0]
         for a in graph:
-            h[a.get_group()] += 1
             c[round(a.g_skill,1)] += 1
-        if h[0]> 0.6*nb_agent or h[1]> 0.6*nb_agent:
-            sp[0] += 1
-        else:
-            sp[1] += 1
 
         labels, values = zip(*sorted(c.items()))
         indexes = np.arange(len(labels))
@@ -108,6 +104,5 @@ if __name__ == '__main__':
         plt.bar(indexes, values)
         plt.xticks(indexes , labels)
         plt.show()
-    print(sp)
    
             

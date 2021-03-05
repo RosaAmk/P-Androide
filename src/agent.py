@@ -35,16 +35,12 @@ class Agent():
 
         def apply_variation_random(self):
             if not self.is_stopped():
-                if not self.genomeList:
-                    self.g_skill = 0
-                else:
+                if self.genomeList:
                     self.g_skill = random.choice(self.genomeList)[0]
                 self.genomeList = []
         def apply_variation_fitness_prop(self):
             if not self.is_stopped():
-                if not self.genomeList:
-                    self.g_skill = 0
-                else:
+                if self.genomeList:
                     x = [elem[1] for elem in self.genomeList]
                     if sum(x)== 0:
                         self.g_skill = np.random.choice([elem[0] for elem in self.genomeList] )
@@ -54,9 +50,8 @@ class Agent():
                 
         def apply_variation_rank_prop(self):
             if not self.is_stopped():
-                if not self.genomeList:
-                    self.g_skill = 0
-                else:
+                if self.genomeList:
+
                     x = list(range(len(self.genomeList)))
                     if sum(x)== 0:
                         self.g_skill = np.random.choice([elem[0] for elem in self.genomeList] )
@@ -66,9 +61,7 @@ class Agent():
                     self.genomeList = []
         def apply_variation_fitness(self):
             if not self.is_stopped():
-                if not self.genomeList:
-                    self.g_skill = 0
-                else:
+                if self.genomeList:
                     self.g_skill = max(self.genomeList, key = lambda i : i[1])[0]
                 self.genomeList = []
         def get_neighbours(self):
@@ -92,38 +85,44 @@ class Agent():
                 return 1/(1 + exp(50*((self.g_skill)+0.5)))
             return 0
 
-        def compute_fitness(self, env,it):     
-            if not self.is_stopped():
-                self.energy += self.f_syn(env)
-                if it > 10:
-                    self.fitness += self.f_syn(env)
+        def compute_fitness(self, env,it):   
             
-        def get_group(self):
+            if not self.is_stopped():
+                x = self.f_syn(env)
+                self.energy += x
+                if it > 0:
+                    self.fitness += x
+            
+        ''' def get_group(self):
 
             if self.g_skill>=0 :
                 return 0
             elif self.g_skill<0:
-                return 1
+                return 1'''
 
             
         def move(self):
             if self.is_stopped():
                 self.charge()
-                return 0
-            self.energy -= 0.5
-            if not self.energy:
-                self.genomeList = []
-                self.wait = random.randint(4, 15)
+            else :
+                self.energy -= 1
+                if self.energy <= 0:
+                    self.genomeList = []
+                    self.wait = random.randint(4, 15)
 
         
         def is_stopped(self):
-            return self.wait
+            if self.wait > 0:
+                return True
+            else:
+                return False
         
         
         def charge(self):
             self.wait -= 1
             if self.wait == 0:
                 self.energy = 4
+                
                 
 
 if __name__ == '__main__':
