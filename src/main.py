@@ -4,7 +4,7 @@ Created on Fri Feb 12 20:51:21 2021
 
 @author: roza
 """
-from agent2 import Agent
+from agent import Agent
 from gen_graph import Graph
 import random
 from collections import Counter
