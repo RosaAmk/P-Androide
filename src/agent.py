@@ -20,7 +20,7 @@ class Agent():
             self.sigma = 0.1
             self.listening = 0
             self.fitness_vector = []
-            self.w=wg.append(Agent(w))
+            self.w=w
             self.maturity  = 0
             
         def __str__(self):
