@@ -75,6 +75,7 @@ class Agent():
                         self.g_skill = max(-1, self.g_skill)
                 else:
                     self.g_skill = None
+                    
 
         def apply_variation_rank_prop(self, pmut_uniform):
                 liste = self.genomeList
