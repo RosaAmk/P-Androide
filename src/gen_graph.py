@@ -116,15 +116,3 @@ class Graph():
                  if rang[xRacine] == rang[yRacine]:
                          rang[xRacine] += 1
 
-
-if __name__ == '__main__':
-    g = Graph(500,0.004)
-    g.gen_graph()
-    for e in g.edges_final:
-        print(e[0], e[1]) 
-    graph = pgv.Digraph()
-    for i in range(g.n):
-        graph.node(str(i))
-    for e in g.edges_final:
-        graph.edge(str(e[0]), str(e[1])) 
-    graph.render()
