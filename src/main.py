@@ -99,6 +99,130 @@ def get_graph(graph, n, method):
     elif graph == 'complet':
         return gen_complet(n, method)
     
+def exp_real_data(nb_it = 20000, nb_agent=256):
+    res = dict()
+    methods = [ 'fitness prop','random', 'elitist', 'rank prop']
+    #methods = ['random']
+    gskills = dict()
+    data = graph_sim()
+    for method in methods:
+        print(method)
+        #c2 = Counter()
+        c3 = []
+        
+        for run in range(11):
+            i = 0
+            
+            for e in np.linspace(-1,1,21):
+                gskills[round(e,1)] = i
+                i += 1
+            #gskills_mat =np.zeros((21,nb_it//100))
+            graph = []
+
+            for i in range(nb_agent):
+                graph.append(Agent(method))
+            chrono_mat = np.zeros((nb_agent,nb_it))
+            
+            c = Counter()
+            for e in np.linspace(-1,1,21):
+                c[round(e,1)] = 0
+            env = Env()
+            l = list(range(nb_agent))
+            dead_red = (nb_it+1)*[0]
+            active_red = (nb_it+1)*[0]
+            dead_blue = (nb_it+1)*[0]
+            active_blue = (nb_it+1)*[0]
+            none =(nb_it+1)*[0]
+            for a in graph:
+                    if a.g_skill == None or a.g_skill == 0:
+                        none[0] += 1
+                    elif a.g_skill < 0:
+                        if a.is_stopped():
+                            dead_red[0] += 1
+                        else:
+                            active_red[0] += 1
+                    elif a.g_skill > 0:
+                        if a.is_stopped():
+                            dead_blue[0] += 1 
+                        else:
+                            active_blue[0] += 1
+            for i in range(nb_it): 
+                
+                print(i)
+                for j in range(4):
+                    edges = data.get_edges(i*4+j)
+                    env.R1 = nb_agent/2
+                    env.R2 = nb_agent/2
+
+                    
+                    random.shuffle(l)
+                    
+                    for ag in l:
+                            graph[ag].move()
+                            graph[ag].compute_fitness(env)
+                    for e in edges:
+                            first = random.choice([0,1])
+                            graph[e[first]].broadcast(graph[e[1-first]])
+                            graph[e[1-first]].broadcast(graph[e[first]])
+                n = 0
+                for a in graph:
+                    a.select_genome()
+                    a.genomeList = []
+                    if a.g_skill != None:
+                        chrono_mat[n, i] = round(a.g_skill,1)
+                    if a.g_skill == None or a.g_skill == 0:
+                        none[i+1] += 1
+                    elif a.g_skill < 0:
+                        if a.is_stopped():
+                            dead_red[i+1] += 1
+                        else:
+                            active_red[i+1] += 1
+                    elif a.g_skill > 0:
+                        if a.is_stopped():
+                            dead_blue[i+1] += 1
+                        else:
+                            active_blue[i+1] += 1
+                    n += 1
+                    
+                    
+
+                #if i%100 == 0 and i >19700:   
+
+                    #plot.draw_graph(graph,edges,"results/etoile3_2000/it"+str(i)+"_"+str(nb_agent)+"_"+method+"_"+str(run)+".gv",edge = True)
+
+            
+            cpt = 0   
+            for a in graph:                
+                if not a.is_stopped() :
+                        cpt  += 1
+                if a.g_skill != None :
+                    c[round(a.g_skill,1)] += 1
+                        
+            c3.append(cpt)
+            labels,values = zip(*sorted(c.items()))
+            print(cpt)
+            plot.draw_barplot(list(range(nb_it+1)), active_red,active_blue, none, dead_red, dead_blue,'graphe simulation- sigma 0,1 '+ method+' '+str(nb_agent))
+            #plot.draw_graph(graph,edges,"results/etoile3_2000/end_"+str(nb_agent)+"_"+method+"_"+str(run)+".gv",edge= True)
+            #plot.heatmap_plot(range(nb_it//100) ,gskills.keys(),  gskills_mat , methods[method])
+            plot.chrono_plot( chrono_mat , 'graphe simulation- sigma 0,1 '+method+' '+str(nb_agent))
+            plot.histogramme_plot(labels,values,'graphe simulation- sigma 0,1 '+ method+' '+str(nb_agent))
+
+
+        res[method] = c3
+    
+    data=[]
+    labels=[]
+    with open("realdata.txt", "a") as fichier:
+        fichier.write(str(nb_agent))
+        for k in res.keys():
+            data.append(res[k])
+            
+            labels.append(k)
+            fichier.write(k)
+
+            fichier.write(str(res[k]))
+    
+    
 def _eval(nb_it = 20000, nb_agent = 100, method = 'elitist', graph = 'ring', den= 0.1):
             i = 0
             gskills = dict()
